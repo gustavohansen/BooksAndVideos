@@ -1,13 +1,12 @@
 ﻿using Moq;
 using BooksAndVideos.App.Services;
 using BooksAndVideos.App.Entities;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit;
 
 namespace BooksAndVideos.Tests.OrderService
 {
-    [TestClass]
     public class ProcessTests
     {
         //Mock<ICustomerService> customerService;
@@ -17,7 +16,7 @@ namespace BooksAndVideos.Tests.OrderService
         //    customerService.Setup(cs => cs.GetCustomer(1)).Returns(new Customer { Id = 1 });
         //}
 
-        [TestMethod]
+        [Fact]
         public void TestProcessOrderWithOutShippingSlip()
         {
             Order order = new Order
@@ -42,10 +41,10 @@ namespace BooksAndVideos.Tests.OrderService
             customerService.Setup(cs => cs.ActivateMembership(order.Customer, MembershipType.BookClubMembership))
                             .Callback(()=> { order.Customer.Memberships.Add(MembershipType.BookClubMembership); });
 
-            Assert.IsFalse(order.HasShippingSlip());
+            Assert.False(order.HasShippingSlip());
         }
 
-        [TestMethod]
+        [Fact]
         public void TestProcessOrderWithShippingSlip()
         {
             //Order order = new Order()
@@ -57,7 +56,7 @@ namespace BooksAndVideos.Tests.OrderService
             //}
         }
 
-        [TestMethod]
+        [Fact]
         public void TestProcessOrderWithMembership()
         {
             Order order = new Order
@@ -88,8 +87,8 @@ namespace BooksAndVideos.Tests.OrderService
 
             customerService.VerifyNoOtherCalls();
 
-            Assert.IsTrue(order.Customer.Memberships.Count == 1);
-            Assert.AreEqual(order.Customer.Memberships.First(), MembershipType.BookClubMembership);
+            Assert.True(order.Customer.Memberships.Count == 1);
+            Assert.Equal(MembershipType.BookClubMembership, order.Customer.Memberships.First());
         }
     }
 }
