@@ -1,26 +1,33 @@
 ﻿using BooksAndVideos.App.Services;
 using BooksAndVideos.App.Entities;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Linq;
 using Moq;
 
-namespace BooksAndVideos.Tests.OrderService
+namespace BooksAndVideos.Tests.Services
 {
     [TestFixture()]
-    public class ProcessTests
+    public class ProcessTests : BaseTest
     {
+        Mock<IShippingService> shippingService;
+        Mock<ICustomerService> customerService;
+
+        [SetUp()]
+        public void SetUp()
+        {
+            shippingService = new Mock<IShippingService>();
+            customerService = new Mock<ICustomerService>();
+        }
+
         [Test()]
         public void TestProcessOrderWithOutShippingSlip()
         {
-            var order = GetOrder1();
-
-            Mock<ICustomerService> customerService = new Mock<ICustomerService>();
+            var order = GetOrderWithMembership();
 
             customerService.Setup(cs => cs.ActivateMembership(order.Customer, MembershipType.BookClubMembership))
                            .Callback(() => { order.Customer.Memberships.Add(MembershipType.BookClubMembership); });
 
-            App.Services.OrderService orderService = new App.Services.OrderService(customerService.Object);
+            var orderService = new OrderService(customerService.Object, shippingService.Object);
 
             orderService.Process(order);
 
@@ -32,11 +39,16 @@ namespace BooksAndVideos.Tests.OrderService
         [Test()]
         public void TestProcessOrderWithShippingSlip()
         {
-            var order = GetOrder2();
+            var order = GetOrderWithPhysicalProduct();
 
-            App.Services.OrderService orderService = new App.Services.OrderService(null);
+            var orderService = new OrderService(customerService.Object, shippingService.Object);
+
+            shippingService.Setup(s => s.CreateShippingSlip(order))
+                          .Callback(() => { order.ShippingSlip = new ShippingSlip(); });
 
             orderService.Process(order);
+
+            shippingService.Verify(s => s.CreateShippingSlip(order), Times.Exactly(1));
 
             Assert.IsTrue(order.HasShippingSlip());
         }
@@ -44,7 +56,7 @@ namespace BooksAndVideos.Tests.OrderService
         [Test()]
         public void TestProcessOrderWithMembership()
         {
-            var order = GetOrder1();
+            var order = GetOrderWithMembership();
 
             Mock<ICustomerService> customerService = new Mock<ICustomerService>();
 
@@ -52,8 +64,7 @@ namespace BooksAndVideos.Tests.OrderService
                            .Callback(() => { order.Customer.Memberships.Add(MembershipType.BookClubMembership); });
 
        
-            App.Services.OrderService orderService = new App.Services.OrderService(customerService.Object);
-
+            var orderService = new OrderService(customerService.Object, shippingService.Object);
 
             orderService.Process(order);
 
@@ -66,50 +77,13 @@ namespace BooksAndVideos.Tests.OrderService
         [Test()]
         public void TestProcessOrderWithOutMembership()
         {
-            var order = GetOrder2();
+            var order = GetOrderWithPhysicalProduct();
 
-            App.Services.OrderService orderService = new App.Services.OrderService(null);
+            var orderService = new OrderService(customerService.Object, shippingService.Object);
 
             orderService.Process(order);
 
             Assert.IsEmpty(order.Customer.Memberships);
-        }
-
-        private Order GetOrder1()
-        {
-            return new Order
-            {
-                Customer = new Customer { Id = 1 },
-                Items = new List<OrderLine> { new OrderLine {
-                        Id = 1,
-                        Count = 1,
-                        Product = new Membership
-                        {
-                            Id = 1,
-                            Price = 100,
-                            MembershipType = MembershipType.BookClubMembership
-                        }
-                    }
-                }
-            };
-        }
-
-        private Order GetOrder2()
-        {
-            return new Order
-            {
-                Customer = new Customer { Id = 1 },
-                Items = new List<OrderLine> { new OrderLine {
-                        Id = 2,
-                        Count = 1,
-                        Product = new PhysicalProduct
-                        {
-                            Id = 1,
-                            Price = 100
-                        }
-                    }
-                }
-            };
         }
     }
 }

@@ -1,42 +1,29 @@
 ﻿using BooksAndVideos.App.Entities;
-using System.Linq;
 
 namespace BooksAndVideos.App.Services
 {
     public class OrderService : IOrderService
     {
-        private ICustomerService customerService;
+        private readonly ICustomerService customerService;
+        private readonly IShippingService shippingService;
 
-        public OrderService(ICustomerService customerService)
+        public OrderService(ICustomerService customerService, IShippingService shippingService)
         {
             this.customerService = customerService;
+            this.shippingService = shippingService;
         }
 
         public void Process(Order order)
         {
-            bool shouldCreateShippingSlip = false;
-
             foreach (var item in order.Items)
             {
-                if (item.Product is PhysicalProduct)
-                {
-                    shouldCreateShippingSlip = true;
-                }
-                else if (item.Product is Membership membership)
+                if (item.Product is Membership membership)
                 {
                     customerService.ActivateMembership(order.Customer, membership.MembershipType);
                 }
             }
 
-            if (shouldCreateShippingSlip)
-            {
-                CreateShippingSlip(order);
-            }
-        }
-
-        private void CreateShippingSlip(Order order)
-        {
-            order.ShippingSlip = new ShippingSlip();
+            shippingService.CreateShippingSlip(order);
         }
     }
 }
