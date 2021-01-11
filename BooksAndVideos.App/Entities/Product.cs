@@ -1,6 +1,7 @@
 ﻿namespace BooksAndVideos.App.Entities
 {
-    public class Product : Entity
+    public abstract class Product : Entity
     {
+        public decimal Price { get; set; }
     }
 }

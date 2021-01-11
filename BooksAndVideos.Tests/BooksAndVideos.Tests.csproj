@@ -8,4 +8,8 @@
     <ProjectReference Include="..\BooksAndVideos.App\BooksAndVideos.App.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.UnitTesting" Version="11.0.50727.1" />
+    <PackageReference Include="Moq" Version="4.15.2" />
+  </ItemGroup>
 </Project>
