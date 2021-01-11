@@ -83,7 +83,7 @@ namespace BooksAndVideos.Tests.OrderService
             customerService.VerifyNoOtherCalls();
 
             Assert.True(order.Customer.Memberships.Count == 1);
-            Assert.AreEqual(MembershipType.BookClubMembership, order.Customer.Memberships.First());
+            Assert.Equal(MembershipType.BookClubMembership, order.Customer.Memberships.First());
         }
     }
 }
