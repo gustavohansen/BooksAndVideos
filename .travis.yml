@@ -1,14 +1,7 @@
-language:
-    csharp 
-sudo: required 
-mono: none 
-dotnet: 3.0 
-
-os: - linux 
-
-before_script: 
-- dotnet restore ".\BooksAndVideos.sln" 
-
-script: 
-- dotnet build ".\BooksAndVideos.sln" -c Release 
-- dotnet test ".\BooksAndVideos.sln" -c Release -v n
+language: csharp
+mono: none
+dotnet: 5.0.101
+solution: BooksAndVideos.sln
+script:
+  - dotnet restore
+  - dotnet test
