@@ -1,0 +1,7 @@
+language: csharp
+mono: none
+dotnet: 5.0.101
+solution: BooksAndVideos.sln
+script:
+  - dotnet restore
+  - dotnet test
