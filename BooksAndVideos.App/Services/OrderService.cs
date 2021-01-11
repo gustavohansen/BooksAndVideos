@@ -1,4 +1,5 @@
 ﻿using BooksAndVideos.App.Entities;
+using System.Linq;
 
 namespace BooksAndVideos.App.Services
 {
@@ -27,7 +28,7 @@ namespace BooksAndVideos.App.Services
                 }
             }
 
-            if(shouldCreateShippingSlip)
+            if (shouldCreateShippingSlip)
             {
                 CreateShippingSlip(order);
             }
